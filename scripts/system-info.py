@@ -374,7 +374,7 @@ def on_ui_tabs():
                                 # batches = gr.Textbox('1, 2, 4, 8', label = 'Batch sizes', elem_id = 'system_info_tab_batch_size', interactive = False)
                             with gr.Column(scale=1):
                                 bench_run_btn = gr.Button('Run benchmark', elem_id = 'system_info_tab_benchmark_btn').style(full_width = False)
-                                bench_run_btn.click(bench_init, inputs = [username, note, warmup, level, extra], outputs = [benchmark_data])
+                                bench_run_btn.click(multi_bench_init, inputs = [username, note, warmup, level, extra], outputs = [benchmark_data])
                                 bench_submit_btn = gr.Button('Submit results', elem_id = 'system_info_tab_submit_btn').style(full_width = False)
                                 bench_submit_btn.click(bench_submit, inputs = [username], outputs = [])
                                 bench_link = gr.HTML('<a href="https://vladmandic.github.io/sd-extension-system-info/pages/benchmark.html" target="_blank">Link to online results</a>')
@@ -445,11 +445,17 @@ def bench_run(batches: list = [1], extra: bool = False):
     return its
 
 
+def multi_bench_init(username: str, note: str, warmup: bool, level: str, extra: bool):
+    for sd_model in shared.refresh_checkpoints():
+        shared.opts.data['sd_model_checkpoint'] = sd_model
+        bench_init(username, note, warmup, level, extra)
+    return bench_data
+
+
 def bench_init(username: str, note: str, warmup: bool, level: str, extra: bool):
     bench_log('starting')
-    bench_log(f'models: {shared.refresh_checkpoint()}')
-    bench_log(f'sd_model: {shared.sd_model}')
-    hash256 = sha256((dict2str(data['platform']) + data['torch'] + dict2str(data['libs']) + dict2str(data['gpu']) + ','.join(data['optimizations']) + data['crossattention']).encode('utf-8')).hexdigest()[:6]
+    sd_model = shared.opts.data['sd_model_checkpoint']
+    hash256 = sha256((dict2str(data['platform']) + data['torch'] + dict2str(data['libs']) + dict2str(data['gpu']) + ','.join(data['optimizations']) + data['crossattention'] + sd_model).encode('utf-8')).hexdigest()[:6]
     existing = [x for x in bench_data if (x[-1] is not None and x[-1][:6] == hash256)]
     if len(existing) > 0:
         bench_log('replacing existing entry')
