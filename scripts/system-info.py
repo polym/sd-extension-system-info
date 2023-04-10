@@ -446,7 +446,7 @@ def bench_run(batches: list = [1], extra: bool = False):
 
 
 def multi_bench_init(username: str, note: str, warmup: bool, level: str, extra: bool):
-    for sd_model in shared.refresh_checkpoints():
+    for sd_model in shared.list_checkpoint_tiles():
         shared.opts.data['sd_model_checkpoint'] = sd_model
         bench_init(username, note, warmup, level, extra)
     return bench_data
