@@ -447,6 +447,8 @@ def bench_run(batches: list = [1], extra: bool = False):
 
 def bench_init(username: str, note: str, warmup: bool, level: str, extra: bool):
     bench_log('starting')
+    bench_log(f'models: {shared.refresh_checkpoint()}')
+    bench_log(f'sd_model: {shared.sd_model}')
     hash256 = sha256((dict2str(data['platform']) + data['torch'] + dict2str(data['libs']) + dict2str(data['gpu']) + ','.join(data['optimizations']) + data['crossattention']).encode('utf-8')).hexdigest()[:6]
     existing = [x for x in bench_data if (x[-1] is not None and x[-1][:6] == hash256)]
     if len(existing) > 0:

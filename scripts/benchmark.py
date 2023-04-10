@@ -28,8 +28,6 @@ args = {
 
 
 def run_benchmark(batch: int, extra: bool):
-    print('models', shared.refresh_checkpoint())
-    print('sd_model', shared.sd_model)
     shared.state.begin()
     args['batch_size'] = batch
     args['steps'] = 20 if not extra else 50
